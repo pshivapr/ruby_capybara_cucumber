@@ -8,4 +8,4 @@ FileUtils.remove_dir("results") if File.directory?("results")
 FileUtils.mkdir_p("results") if not File.directory?("results")
 
 Capybara.save_path = "results/screenshot"
-Capybara.default_driver = :selenium_chrome
+Capybara.default_driver = :selenium_chrome_headless
