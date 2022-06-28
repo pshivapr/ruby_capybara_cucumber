@@ -2,7 +2,6 @@
 
 Given(/^I'm on kainos homepage$/) do
   visit "https://kainos.com/"
-  find(:xpath, "//*[@id='ccc-recommended-settings']").click
 end
 
 When(/^I use search button and type (.*)$/) do |searchText|
