@@ -29,9 +29,7 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-    - name: Run tests
-      run: bundle exec cucumber --tag @smoke --format pretty --expand --format html -o results/report.html --format json -o results/report.json
-    - name: "Get XRay API Token"
+    - name: Get Xray Cloud API token
       env:
         CLIENT_ID: ${{ secrets.client_id }}
         CLIENT_SECRET: ${{ secrets.client_secret }}
@@ -39,6 +37,11 @@ jobs:
       shell: bash
       run: |
           echo ::set-output name=XRAY_TOKEN::$(curl -k -H "Content-Type: application/json" -X POST --data "{ \"client_id\": \"$CLIENT_ID\",\"client_secret\": \"$CLIENT_SECRET\" }" https://xray.cloud.xpand-it.com/api/v1/authenticate| tr -d '"')
-    - name: "IMPORT XRAY RESULTS"
+    - name: Synchronize and Import Tests
+      shell: bash
+      run: 'curl -k -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.xray-token.outputs.XRAY_TOKEN }}" -F "file=@features/kainos_search.feature" "https://xray.cloud.xpand-it.com/api/v1/import/feature?projectKey=DEMOX"'
+    - name: Run tests
+      run: bundle exec cucumber --tag @smoke --format pretty --expand --format html -o results/report.html --format json -o results/report.json
+    - name: Submit results to Xray
       shell: bash
       run: 'curl -k -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.xray-token.outputs.XRAY_TOKEN }}" --data @results/report.json https://xray.cloud.xpand-it.com/api/v1/import/execution/cucumber'
